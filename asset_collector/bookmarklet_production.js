@@ -1,0 +1,1 @@
+javascript:(function()%7Bvar%20p=document.createElement('script');populrEnvironment='p';p.type='text/javascript';p.charset='utf-8';p.src='//localhost/assetcollector.js?'+Date.now();document.body.appendChild(p)%7D());

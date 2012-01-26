@@ -5,34 +5,44 @@ function(){l(b)},o=b==="css",q=[],d,i,e,r;c||w();if(a)if(a=typeof a==="string"?[
 e.setAttribute("charset","utf-8"),c.ie&&!o?e.onreadystatechange=function(){if(/loaded|complete/.test(e.readyState))e.onreadystatechange=null,j()}:o&&(c.gecko||c.webkit)?c.webkit?(r.urls[d]=e.href,t()):(e.innerHTML='@import "'+g+'";',u(e)):e.onload=e.onerror=j,q.push(e);d=0;for(i=q.length;d<i;++d)s.appendChild(q[d])}}function u(b){var a;try{a=!!b.sheet.cssRules}catch(c){h+=1;h<200?setTimeout(function(){u(b)},50):a&&l("css");return}l("css")}function t(){var b=m.css,a;if(b){for(a=v.length;--a>=0;)if(v[a].href===
 b.urls[0]){l("css");break}h+=1;b&&(h<200?setTimeout(t,50):l("css"))}}var c,s,m={},h=0,n={css:[],js:[]},v=k.styleSheets;return{css:function(b,a,c,f){j("css",b,a,c,f)},js:function(b,a,c,f){j("js",b,a,c,f)}}}(this.document);
 
-Populr.params = window.location.href.split('?').pop().split('&');
-Populr.environment = Populr.params[0].split('=')[1];
 
-Populr.s3Hosts = { d: 'localhost', s: 'stagingfiles.populr.me', p: 'files.populr.me' };
-Populr.s3Host = Populr.s3Hosts[environment];
+Populr.s3Hosts = { d: 'localhost', s: 's3.amazonaws.com/stagingfiles.populr.me', p: 's3.amazonaws.com/files.populr.me' };
+Populr.s3Host = Populr.s3Hosts[populrEnvironment];
 
 Populr.appHosts = { d: 'localhost', s: 'staging.populr.me', p: 'populr.me' };
-Populr.appHost = Populr.appHosts[environment];
+Populr.appHost = Populr.appHosts[populrEnvironment];
 
-Populr.protocol = Populr.environment == 'd' ? 'http:' : window.location.protocol
+Populr.protocol = populrEnvironment == 'd' ? 'http:' : window.location.protocol
 
 // change s3Host to appHost when the iframe source is included in the main project
-Populr.iframeUrl = Populr.protocol + '//s3.amazonaws.com/' + Populr.s3Host + '/asset_collector/index.htm?h=' + window.location.host;
+Populr.iframeUrl = Populr.protocol + '//' + Populr.s3Host + '/asset_collector/index.htm?h=' + window.location.host;
 
-Populr.lazyLoad.js([Populr.protocol + '//s3.amazonaws.com/' + Populr.s3Host + '/asset_collector/porthole.min.js'],
+Populr.lazyLoad.js([Populr.protocol + '//' + Populr.s3Host + '/asset_collector/porthole.min.js'],
   function () {
 
-    var windowProxy = new Porthole.WindowProxy(Populr.protocol + '//s3.amazonaws.com/' + Populr.s3Host + '/proxy.html', 'populr_asset_collector');
+    var windowProxy = new Porthole.WindowProxy(Populr.protocol + '//' + Populr.s3Host + '/proxy.html', 'populr_asset_collector');
     windowProxy.addEventListener(function(event) {
       if (event.data == 'ready') {
-        for (var image in document.getElementsByTagName('img') ) {
-          windowProxy.postMessage(image.src);
+        var images = document.getElementsByTagName('img');
+        for (var i=0; i<images.length; i++) {
+          if (images[i].src.length < 1024) {
+            windowProxy.postMessage(images[i].src);
+          }
         }
       }
     });
 
-    var body = document.getElementsByTagName('body')[0];
-    body.append('<iframe name="populr_asset_collector" width="1" height="1" seamless="seamless" style="position:absolute; top:25px; bottom:25px; left:25px; right:25px;" src="' + Populr.iframeUrl + '"></iframe>');
+    var iframe = document.createElement('iframe');
+    iframe.style.position = 'absolute';
+    iframe.style.top = '25px';
+    iframe.style.left = '25px';
+    iframe.style.border = '0';    
+    iframe.name = 'populr_asset_collector';
+    iframe.src = Populr.iframeUrl;
+    iframe.width = window.innerWidth - 65;
+    iframe.height = window.innerHeight - 50;
+    iframe.style['z-index'] = 1999;
+    document.body.appendChild(iframe);
 
   }
 );
