@@ -8,29 +8,31 @@ b.urls[0]){l("css");break}h+=1;b&&(h<200?setTimeout(t,50):l("css"))}}var c,s,m={
 Populr.params = window.location.href.split('?').pop().split('&');
 Populr.environment = Populr.params[0].split('=')[1];
 
-Populr.s3Hosts = { d: 'dfiles.populr.me', s: 'stagingfiles.populr.me', p: 'files.populr.me' };
+Populr.s3Hosts = { d: 'localhost', s: 'stagingfiles.populr.me', p: 'files.populr.me' };
 Populr.s3Host = Populr.s3Hosts[environment];
 
-Populr.appHosts = { d: 'lvh.me', s: 'staging.populr.me', p: 'populr.me' };
+Populr.appHosts = { d: 'localhost', s: 'staging.populr.me', p: 'populr.me' };
 Populr.appHost = Populr.appHosts[environment];
 
-// change s3Host to appHost when the iframe source is included in the main project
-Populr.iframeUrl = request.protocol + '//s3.amazonaws.com/' + Populr.s3Host + '/asset_collection/index.htm?h=' + window.location.host;
+Populr.protocol = Populr.environment == 'd' ? 'http:' : window.location.protocol
 
-Populr.lazyLoad.js([request.protocol + '//s3.amazonaws.com/' + Populr.s3Host + '/asset_collection/porthole.min.js'],
+// change s3Host to appHost when the iframe source is included in the main project
+Populr.iframeUrl = Populr.protocol + '//s3.amazonaws.com/' + Populr.s3Host + '/asset_collector/index.htm?h=' + window.location.host;
+
+Populr.lazyLoad.js([Populr.protocol + '//s3.amazonaws.com/' + Populr.s3Host + '/asset_collector/porthole.min.js'],
   function () {
 
-    var windowProxy = new Porthole.WindowProxy(request.protocol + '//s3.amazonaws.com/' + Populr.s3Host + '/proxy.html', 'populr_asset_collector');
+    var windowProxy = new Porthole.WindowProxy(Populr.protocol + '//s3.amazonaws.com/' + Populr.s3Host + '/proxy.html', 'populr_asset_collector');
     windowProxy.addEventListener(function(event) {
       if (event.data == 'ready') {
         for (var image in document.getElementsByTagName('img') ) {
-          image.src
+          windowProxy.postMessage(image.src);
         }
       }
     });
 
     var body = document.getElementsByTagName('body')[0];
-    body.append('<iframe name="populr_asset_collector" width="1" height="1" seamless="seamless" style="position:absolute; width:1px; height:1px; left:-99px;" src="' + Populr.iframeUrl + '"></iframe>');
+    body.append('<iframe name="populr_asset_collector" width="1" height="1" seamless="seamless" style="position:absolute; top:25px; bottom:25px; left:25px; right:25px;" src="' + Populr.iframeUrl + '"></iframe>');
 
   }
 );

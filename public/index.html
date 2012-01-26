@@ -1,35 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Analytics Suppressor</title>
+  <title>Populr Asset Collector</title>
   <script src="./porthole.min.js" type="text/javascript"></script>
   <script type="text/javascript">
   var windowProxy;
   window.onload = function(){ 
     var params = window.location.href.split('?').pop().split('&');
-    var pop_id = params[0].split('=')[1]
+    var host = params[0].split('=')[1]
 
-    if (params.length == 1) {
-      setPopIdCookie(pop_id);
-    } else {
-      var host = params[1].split('=')[1]
-      windowProxy = new Porthole.WindowProxy(window.location.protocol + '//' + host + '/proxy.html');
+    windowProxy = new Porthole.WindowProxy(window.location.protocol + '//' + host + '/proxy.html');
 
-      if (!isPopIdCookieSet(pop_id)) {
-        windowProxy.postMessage('track_analytics');
-      }
-    }
+    windowProxy.addEventListener(function(event) {
+      console.log(event.data);
+    });
+
+    windowProxy.postMessage('ready');
   };
-
-  function setPopIdCookie(pop_id) {
-    var expire = new Date();
-    expire.setTime(expire.getTime() + (30 * 24 * 60 * 60 * 1000)); // 30 days
-    document.cookie = pop_id + '=1; expires=' + expire.toGMTString() + '; path=/';
-  }
-
-  function isPopIdCookieSet(pop_id) {
-    return(document.cookie.indexOf(pop_id) >= 0);
-  }
   </script>
 </head>
 <body>
