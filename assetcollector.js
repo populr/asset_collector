@@ -6,10 +6,10 @@ e.setAttribute("charset","utf-8"),c.ie&&!o?e.onreadystatechange=function(){if(/l
 b.urls[0]){l("css");break}h+=1;b&&(h<200?setTimeout(t,50):l("css"))}}var c,s,m={},h=0,n={css:[],js:[]},v=k.styleSheets;return{css:function(b,a,c,f){j("css",b,a,c,f)},js:function(b,a,c,f){j("js",b,a,c,f)}}}(this.document);
 
 
-Populr.s3Hosts = { d: 'localhost', s: 's3.amazonaws.com/stagingfiles.populr.me', p: 's3.amazonaws.com/files.populr.me' };
+Populr.s3Hosts = { d: '192.168.1.100', s: 's3.amazonaws.com/stagingfiles.populr.me', p: 's3.amazonaws.com/files.populr.me' };
 Populr.s3Host = Populr.s3Hosts[populrEnvironment];
 
-Populr.appHosts = { d: 'localhost', s: 'staging.populr.me', p: 'populr.me' };
+Populr.appHosts = { d: '192.168.1.100', s: 'staging.populr.me', p: 'populr.me' };
 Populr.appHost = Populr.appHosts[populrEnvironment];
 
 Populr.protocol = populrEnvironment == 'd' ? 'http:' : window.location.protocol
@@ -17,32 +17,48 @@ Populr.protocol = populrEnvironment == 'd' ? 'http:' : window.location.protocol
 // change s3Host to appHost when the iframe source is included in the main project
 Populr.iframeUrl = Populr.protocol + '//' + Populr.s3Host + '/asset_collector/index.htm?h=' + window.location.host;
 
-Populr.lazyLoad.js([Populr.protocol + '//' + Populr.s3Host + '/asset_collector/porthole.min.js'],
+Populr.lazyLoad.js(Populr.protocol + '//' + Populr.s3Host + '/asset_collector/porthole.min.js',
   function () {
 
     var windowProxy = new Porthole.WindowProxy(Populr.protocol + '//' + Populr.s3Host + '/proxy.html', 'populr_asset_collector');
     windowProxy.addEventListener(function(event) {
+      console.log('1');
       if (event.data == 'ready') {
         var images = document.getElementsByTagName('img');
+        var img, width, height;
+        var tempImage = new Image();
         for (var i=0; i<images.length; i++) {
-          if (images[i].src.length < 1024) {
-            windowProxy.postMessage(images[i].src);
+          img = images[i];
+          if (img.src.length < 1024) {
+            tempImage.src = img.src;
+            width = tempImage.width;
+            height = tempImage.height;
+            if (width >= 20 && height >= 20) {
+              console.log('2');
+              windowProxy.postMessage(String(width) + '|' + String(height) + '|' + images[i].src);
+            }
           }
         }
       }
     });
 
     var iframe = document.createElement('iframe');
-    iframe.style.position = 'absolute';
+    iframe.style.position = 'fixed';
     iframe.style.top = '25px';
     iframe.style.left = '25px';
     iframe.style.border = '0';    
     iframe.name = 'populr_asset_collector';
     iframe.src = Populr.iframeUrl;
-    iframe.width = window.innerWidth - 65;
-    iframe.height = window.innerHeight - 50;
+
+    try {
+      iframe.width = window.innerWidth - 65;
+      iframe.height = window.innerHeight - 50;
+    } catch (x) {
+      iframe.width = document.documentElement.clientWidth - 65;
+      iframe.height = document.documentElement.clientHeight - 50;
+    }
+
     iframe.style['z-index'] = 1999;
     document.body.appendChild(iframe);
-
   }
 );

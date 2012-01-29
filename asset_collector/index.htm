@@ -7,15 +7,18 @@
   var windowProxy;
   window.onload = function(){ 
     var params = window.location.href.split('?').pop().split('&');
-    var host = params[0].split('=')[1]
+    var host = params[0].split('=')[1];
 
+    console.log(window.location.protocol + '//' + host + '/proxy.html');
     windowProxy = new Porthole.WindowProxy(window.location.protocol + '//' + host + '/proxy.html');
 
     windowProxy.addEventListener(function(event) {
       console.log(event.data);
     });
 
+    console.log('ready');
     windowProxy.postMessage('ready');
+    setTimeout(function() { windowProxy.postMessage('ready'); }, 7000);
   };
   </script>
 
