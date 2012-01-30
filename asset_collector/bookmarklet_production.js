@@ -1,1 +1,1 @@
-javascript:(function()%7Bvar%20p=document.createElement('script');populrme={env:'p'};p.type='text/javascript';p.charset='utf-8';p.src='//localhost/assetcollector.js?'+new%20Date().getTime();document.body.appendChild(p)%7D());
+javascript:(function()%7Bif(window.populrme)%7Breturn;%7D;populrme={env:'p'};var%20p=document.createElement('script');p.type='text/javascript';p.charset='utf-8';p.src='//localhost/assetcollector.js?'+new%20Date().getTime();document.body.appendChild(p)%7D());

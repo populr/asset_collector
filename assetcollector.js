@@ -1,48 +1,103 @@
-// http://github.com/rgrove/lazyload
-populrme.lazyLoad = function(k){function p(b,a){var g=k.createElement(b),c;for(c in a)a.hasOwnProperty(c)&&g.setAttribute(c,a[c]);return g}function l(b){var a=m[b],c,f;if(a)c=a.callback,f=a.urls,f.shift(),h=0,f.length||(c&&c.call(a.context,a.obj),m[b]=null,n[b].length&&j(b))}function w(){var b=navigator.userAgent;c={async:k.createElement("script").async===!0};(c.webkit=/AppleWebKit\//.test(b))||(c.ie=/MSIE/.test(b))||(c.opera=/Opera/.test(b))||(c.gecko=/Gecko\//.test(b))||(c.unknown=!0)}function j(b,a,g,f,h){var j=
-function(){l(b)},o=b==="css",q=[],d,i,e,r;c||w();if(a)if(a=typeof a==="string"?[a]:a.concat(),o||c.async||c.gecko||c.opera)n[b].push({urls:a,callback:g,obj:f,context:h});else{d=0;for(i=a.length;d<i;++d)n[b].push({urls:[a[d]],callback:d===i-1?g:null,obj:f,context:h})}if(!m[b]&&(r=m[b]=n[b].shift())){s||(s=k.head||k.getElementsByTagName("head")[0]);a=r.urls;d=0;for(i=a.length;d<i;++d)g=a[d],o?e=c.gecko?p("style"):p("link",{href:g,rel:"stylesheet"}):(e=p("script",{src:g}),e.async=!1),e.className="lazyload",
-e.setAttribute("charset","utf-8"),c.ie&&!o?e.onreadystatechange=function(){if(/loaded|complete/.test(e.readyState))e.onreadystatechange=null,j()}:o&&(c.gecko||c.webkit)?c.webkit?(r.urls[d]=e.href,t()):(e.innerHTML='@import "'+g+'";',u(e)):e.onload=e.onerror=j,q.push(e);d=0;for(i=q.length;d<i;++d)s.appendChild(q[d])}}function u(b){var a;try{a=!!b.sheet.cssRules}catch(c){h+=1;h<200?setTimeout(function(){u(b)},50):a&&l("css");return}l("css")}function t(){var b=m.css,a;if(b){for(a=v.length;--a>=0;)if(v[a].href===
-b.urls[0]){l("css");break}h+=1;b&&(h<200?setTimeout(t,50):l("css"))}}var c,s,m={},h=0,n={css:[],js:[]},v=k.styleSheets;return{css:function(b,a,c,f){j("css",b,a,c,f)},js:function(b,a,c,f){j("js",b,a,c,f)}}}(this.document);
-
-
-populrme.appHosts = { d: '192.168.1.100', s: 'staging.populr.me', p: 'populr.me' };
+populrme = window.populrme || { env: 't' };
+populrme.appHosts = { d: '192.168.1.100:3000', p: 'populr.me', s: 'staging.populr.me', t: 'populr.me' };
 populrme.appHost = populrme.appHosts[populrme.env];
-populrme.protocol = populrme.env === 'd' ? 'http:' : window.location.protocol;
-populrme.iframeUrl = populrme.protocol + '//' + populrme.appHost + '/asset_collector/index.htm';
-populrme.images = [];
-populrme.constructMessages = function () {
+populrme.protocol = populrme.env == 'd' ? 'http:' : window.location.protocol;
+populrme.id = String(new Date().getTime());
+
+populrme.close = function() {
+  populrme = null;
+}
+
+populrme.mineImages = function () {
   var images = document.getElementsByTagName('img');
   var i, img, width, height;
   var tempImage = new Image();
+  var imageData = [];
   for (i=0; i<images.length; i++) {
     img = images[i];
-    if (img.src.length < 1024) {
+    if (img.src.length < 1700 && img.width >= 75 && img.height >= 75) {
       tempImage.src = img.src;
       width = tempImage.width;
       height = tempImage.height;
-      if (width >= 75 && height >= 75) {
-        populrme.images.push(protocol + '//' + host + '/collection_candidate/?w=' + String(width) + '&h=' + String(height) + '&u=' + img.src);
-      }
+      imageData.push({ width: width, height: height, encodedSrc: encodeURIComponent(img.src) });
     }
+  }
+  return imageData;
+}
+
+populrme.paramsFromMessage = function(message, i) {
+  var istr = String(i);
+  return 'w' + istr + '=' + String(message.width) + '&h' + istr + '=' + String(message.height) + '&s' + istr + '=' + message.encodedSrc + '&';
+}
+
+populrme.constructMessages = function(imageData) {
+  var i, params;
+  var baseUrl = populrme.protocol + '//' + populrme.appHost + '/collection_candidate?id=' + populrme.id;
+  var messages = [];
+  while (imageData.length > 0) {
+    i = 0;
+    params = '';
+    while (imageData.length > 0 && (baseUrl + params + populrme.paramsFromMessage(imageData[0], i)).length < 2048) {
+      params += populrme.paramsFromMessage(imageData.shift(), i++);
+    }
+    messages.push(baseUrl + params.slice(0, params.length - 1));
+  }
+  return messages;
+}
+
+populrme.sendMessages = function(messages) {
+  if (messages.length == 0) { return populrme.showIFrame(); }
+  var i, img, div;
+
+  populrme.messageCount = messages.length;
+
+  div = document.createElement('div');
+  div.id = 'populrme_messages';
+  div.style.position = 'absolute';
+  div.style.top = '0';
+  div.style.left = '-10px';
+  div.style.width = '1px';
+
+  for (i=0; i<messages.length; i++) {
+    img = document.createElement('img');
+    img.onload = function() { populrme.messageComplete(); };
+    img.src = messages[i];
+    div.appendChild(img);
+  }
+
+  document.body.appendChild(div);
+}
+
+populrme.messageComplete = function() {
+  if (--populrme.messageCount == 0) {
+    populrme.showIFrame();
   }
 }
 
-populrme.lazyLoad.css(populrme.images, function () {
-    var iframe = document.createElement('iframe');
-    iframe.style.position = 'fixed';
-    iframe.style.top = '50px';
-    iframe.style.left = '0';
-    iframe.style.border = '0';    
-    iframe.style.width = '100%';
-    iframe.name = 'populr_asset_collector';
-    iframe.src = populrme.iframeUrl;
-    iframe.style['z-index'] = 9999;
+populrme.showIFrame = function () {
+  var iframe = document.createElement('iframe');
+  iframe.style.position = 'fixed';
+  iframe.style.top = '50px';
+  iframe.style.left = '0';
+  iframe.style.border = '0';    
+  iframe.style.width = '100%';
+  iframe.name = 'populr_asset_collector';
+  iframe.src = populrme.protocol + '//' + populrme.appHost + '/asset_collector/index.htm?id=' + populrme.id;
+  iframe.style['z-index'] = 9999;
 
-   try {
-     iframe.height = window.innerHeight - 50;
-   } catch (x) {
-     iframe.height = document.documentElement.clientHeight - 50;
-   }
+  try {
+    iframe.height = window.innerHeight - 50;
+  } catch (x) {
+    iframe.height = document.documentElement.clientHeight - 50;
+  }
 
-    document.body.appendChild(iframe);
-  });
+  document.body.appendChild(iframe);
+}
+
+populrme.displayCollector = function () {
+  var imageData = populrme.mineImages();
+  var messages = populrme.constructMessages(imageData);
+  populrme.sendMessages(messages);
+}
+
+populrme.displayCollector();
