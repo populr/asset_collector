@@ -15,10 +15,11 @@ populrme.close = function() {
 populrme.mineImages = function () {
   var images = document.getElementsByTagName('img');
   var i, img, width, height;
-  var tempImage = new Image();
+  var tempImage;
   var imageData = [];
   for (i=0; i<images.length; i++) {
     img = images[i];
+    tempImage = new Image();
     tempImage.src = img.src;
     width = tempImage.width;
     height = tempImage.height;
