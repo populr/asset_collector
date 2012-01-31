@@ -27,7 +27,7 @@ populrme.mineImages = function () {
 
 populrme.paramsFromMessage = function(message, i) {
   var istr = String(i);
-  return 'w' + istr + '=' + String(message.width) + '&h' + istr + '=' + String(message.height) + '&s' + istr + '=' + message.encodedSrc + '&';
+  return  '&' + 'w' + istr + '=' + String(message.width) + '&h' + istr + '=' + String(message.height) + '&s' + istr + '=' + message.encodedSrc;
 }
 
 populrme.constructMessages = function(imageData) {
@@ -40,13 +40,15 @@ populrme.constructMessages = function(imageData) {
     while (imageData.length > 0 && (baseUrl + params + populrme.paramsFromMessage(imageData[0], i)).length < 2048) {
       params += populrme.paramsFromMessage(imageData.shift(), i++);
     }
-    messages.push(baseUrl + params.slice(0, params.length - 1));
+    messages.push(baseUrl + params);
   }
   return messages;
 }
 
 populrme.sendMessages = function(messages) {
-  if (messages.length == 0) { return populrme.showIFrame(); }
+  if (messages.length == 0) {
+    return populrme.showIFrame();
+  }
   var i, img, div;
 
   populrme.messageCount = messages.length;
@@ -76,20 +78,18 @@ populrme.messageComplete = function() {
 
 populrme.showIFrame = function () {
   var iframe = document.createElement('iframe');
-  iframe.style.position = 'fixed';
+  iframe.style.position = 'absolute';
   iframe.style.top = '50px';
   iframe.style.left = '0';
   iframe.style.border = '0';    
   iframe.style.width = '100%';
   iframe.name = 'populr_asset_collector';
-  iframe.src = populrme.protocol + '//' + populrme.appHost + '/asset_collector/index.htm?id=' + populrme.id;
+  iframe.src = populrme.protocol + '//' + populrme.appHost + '/asset_collector?id=' + populrme.id;
   iframe.style['z-index'] = 9999;
 
-  try {
-    iframe.height = window.innerHeight - 50;
-  } catch (x) {
-    iframe.height = document.documentElement.clientHeight - 50;
-  }
+  var body = document.body;
+  var html = document.documentElement;
+  iframe.height = Math.max(body.clientHeight, html.clientHeight, body.offsetHeight, html.offsetHeight, body.scrollHeight, html.scrollHeight) - 50;
 
   document.body.appendChild(iframe);
 }
