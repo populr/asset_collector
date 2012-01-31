@@ -15,10 +15,10 @@ populrme.mineImages = function () {
   var imageData = [];
   for (i=0; i<images.length; i++) {
     img = images[i];
-    if (img.src.length < 1700 && img.width >= 75 && img.height >= 75) {
-      tempImage.src = img.src;
-      width = tempImage.width;
-      height = tempImage.height;
+    tempImage.src = img.src;
+    width = tempImage.width;
+    height = tempImage.height;
+    if (img.src.length < 1700 && width >= 100 && height >= 100) {
       imageData.push({ width: width, height: height, encodedSrc: encodeURIComponent(img.src) });
     }
   }
