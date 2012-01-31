@@ -51,7 +51,9 @@ populrme.constructMessages = function(imageData) {
 
 populrme.sendMessages = function(messages) {
   if (messages.length == 0) {
-    return populrme.showIFrame();
+    alert("Couldn't find any images on this page that are large enough to capture");
+    populrme.close();
+    return;
   }
   var i, img, div;
 
