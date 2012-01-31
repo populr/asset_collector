@@ -5,6 +5,10 @@ populrme.protocol = populrme.env == 'd' ? 'http:' : window.location.protocol;
 populrme.id = String(new Date().getTime());
 
 populrme.close = function() {
+  var i;
+  for (i=0; i<populrme.elements.length; i++) {
+    document.body.removeChild(populrme.elements[i]);
+  }
   populrme = null;
 }
 
@@ -54,7 +58,7 @@ populrme.sendMessages = function(messages) {
   populrme.messageCount = messages.length;
 
   div = document.createElement('div');
-  div.id = 'populrme_messages';
+  populrme.elements.push(div);
   div.style.position = 'absolute';
   div.style.top = '0';
   div.style.left = '-10px';
@@ -76,21 +80,47 @@ populrme.messageComplete = function() {
   }
 }
 
+populrme.applySharedAttributes = function(block) {
+  block.style.position = 'absolute';
+  block.style.left = '0';
+  block.style.width = '100%';
+  block.style['z-index'] = 9999;
+}
+
 populrme.showIFrame = function () {
-  var iframe = document.createElement('iframe');
-  iframe.style.position = 'absolute';
-  iframe.style.top = '50px';
-  iframe.style.left = '0';
-  iframe.style.border = '0';    
-  iframe.style.width = '100%';
-  iframe.name = 'populr_asset_collector';
+  var barHeight, div, cancel, iframe, body, html;
+  body = document.body;
+  html = document.documentElement;
+  barHeight = 35;
+
+  cancel = document.createElement('a');
+  populrme.elements.push(cancel);
+  populrme.applySharedAttributes(cancel);
+  cancel.style.backgroundColor = '#fff';
+  cancel.style.textAlign = 'center';
+  cancel.style.cursor = 'pointer';
+  cancel.style.display = 'block';
+  cancel.style.textDecoration = 'none';
+  cancel.style.lineHeight = '2.5em';
+  cancel.style.top = '0';
+  cancel.style.height = String(barHeight) + 'px';
+  cancel.onclick = function() { populrme.close(); };
+  if (typeof document.body.textContent == 'string') {
+    cancel.textContent = 'Cancel';
+  } else {
+    cancel.innerText = 'Cancel';
+  }
+  document.body.appendChild(cancel);
+
+  iframe = document.createElement('iframe');
+  populrme.elements.push(iframe);
+  populrme.applySharedAttributes(iframe);
+  iframe.style.top = String(barHeight) + 'px';
+  iframe.style.border = '0';
+  iframe.frameborder = 0;
+  // iframe.border = 0;
+  iframe.style.height = String(Math.max(body.clientHeight, html.clientHeight, body.offsetHeight, html.offsetHeight, body.scrollHeight, html.scrollHeight) - barHeight) + 'px';
   iframe.src = populrme.protocol + '//' + populrme.appHost + '/asset_collector?id=' + populrme.id;
-  iframe.style['z-index'] = 9999;
-
-  var body = document.body;
-  var html = document.documentElement;
-  iframe.height = Math.max(body.clientHeight, html.clientHeight, body.offsetHeight, html.offsetHeight, body.scrollHeight, html.scrollHeight) - 50;
-
   document.body.appendChild(iframe);
 }
 
