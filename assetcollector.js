@@ -1,7 +1,7 @@
 populrme = window.populrme || { env: 't' };
 populrme.appHosts = { d: 'lvh.me:3000', p: 'populr.me', s: 'staging.populr.me', t: 'populr.me' };
 populrme.appHost = populrme.appHosts[populrme.env];
-populrme.protocol = window.location.protocol;
+populrme.protocol = populrme.env == 'd' ? 'http:' : window.location.protocol;
 populrme.id = String(new Date().getTime());
 
 populrme.close = function() {
@@ -9,6 +9,8 @@ populrme.close = function() {
   for (i=0; i<populrme.elements.length; i++) {
     document.body.removeChild(populrme.elements[i]);
   }
+  document.documentElement.style.overflow = populrme.originalDocOverflowStyle;
+  document.body.scroll = populrme.originalBodyScroll; // ie
   populrme = null;
 }
 
@@ -84,10 +86,20 @@ populrme.messageComplete = function() {
 }
 
 populrme.applySharedAttributes = function(block) {
-  block.style.position = 'absolute';
+  block.style.position = 'fixed';
   block.style.left = '0';
   block.style.width = '100%';
   block.style['z-index'] = 9999;
+}
+
+populrme.getViewportHeight = function() {
+  if (window.innerHeight) {
+    return window.innerHeight;
+  } else if (document.body && document.body.offsetHeight) {
+    return document.body.offsetHeight;
+  } else {
+    return 0;
+  }
 }
 
 populrme.showIFrame = function () {
@@ -119,15 +131,20 @@ populrme.showIFrame = function () {
   populrme.elements.push(iframe);
   populrme.applySharedAttributes(iframe);
   iframe.style.top = String(barHeight) + 'px';
+  iframe.style.height = String(populrme.getViewportHeight() - barHeight) + 'px';
   iframe.style.border = '0';
   iframe.frameborder = 0;
   // iframe.border = 0;
-  iframe.style.height = String(Math.max(body.clientHeight, html.clientHeight, body.offsetHeight, html.offsetHeight, body.scrollHeight, html.scrollHeight) - barHeight) + 'px';
   iframe.src = populrme.protocol + '//' + populrme.appHost + '/asset_collector?id=' + populrme.id;
   document.body.appendChild(iframe);
 }
 
 populrme.displayCollector = function () {
+  populrme.originalDocOverflowStyle = document.documentElement.style.overflow;
+  populrme.originalBodyScroll = document.body.scroll;
+  document.documentElement.style.overflow = 'hidden';
+  document.body.scroll = "no"; // ie
+
   var imageData = populrme.mineImages();
   var messages = populrme.constructMessages(imageData);
   populrme.sendMessages(messages);
