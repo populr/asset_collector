@@ -1,5 +1,5 @@
 populrme = window.populrme || { env: 't' };
-populrme.appHosts = { d: '192.168.1.100:3000', p: 'populr.me', s: 'staging.populr.me', t: 'populr.me' };
+populrme.appHosts = { d: 'lvh.me:3000', p: 'populr.me', s: 'staging.populr.me', t: 'populr.me' };
 populrme.appHost = populrme.appHosts[populrme.env];
 populrme.protocol = populrme.env == 'd' ? 'http:' : window.location.protocol;
 populrme.id = String(new Date().getTime());
