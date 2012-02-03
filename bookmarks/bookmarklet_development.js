@@ -1,1 +1,0 @@
-javascript:(function()%7Bif(window.populrme)%7Breturn;%7D;var%20p=document.createElement('script');populrme=%7Benv:'d',elements:[p]%7D;p.type='text/javascript';p.charset='utf-8';p.src='http://localhost/assetcollector.js?'+new%20Date().getTime();document.body.appendChild(p)%7D());
