@@ -32,7 +32,7 @@ populrme.mineImages = function () {
     width = tempImage.width;
     height = tempImage.height;
 
-    if (img.src.length < 1700 && width >= 100 && height >= 100) {
+    if (img.src.length < 1700 && width >= 100 && height >= 75) {
       populrme.images.push({ width: width, height: height, source: img.src });
     }
 
