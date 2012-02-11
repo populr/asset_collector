@@ -84,7 +84,7 @@ populrme.populateCollector = function () {
 }
 
 populrme.receiveMessage = function(event) {
-  if (true || event.origin == 'https://populr.me' ||
+  if (event.origin == 'https://populr.me' ||
       event.origin == 'https://staging.populr.me' ||
       event.origin == 'http://lvh.me:3000') {
     if (event.data == 'populr_asset_collector_ready') {
