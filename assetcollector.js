@@ -21,19 +21,34 @@ populrme.close = function() {
 
 populrme.mineImages = function () {
   var images = document.getElementsByTagName('img');
-  var i, img, width, height;
-  var tempImage;
+  var divs = document.getElementsByTagName('div');
+  var imageUrls = []
+  var i, url, width, height, regexp;
+  var backgroundImage, backgroundImageUrl, tempImage;
   populrme.images = [];
 
+  regexp = /url\(['"]?([^'")]*)['"]?\)/
+  for (i=0; i<divs.length; i++) {
+    backgroundImage = getComputedStyle(divs[i]).getPropertyValue('background-image');
+    backgroundImageUrl = regexp.exec(backgroundImage);
+    if (backgroundImageUrl && backgroundImageUrl.length > 1) {
+      imageUrls.push(backgroundImageUrl[1]);
+    }
+  }
+
   for (i=0; i<images.length; i++) {
-    img = images[i];
+    imageUrls.push(images[i].src);
+  }
+
+  for (i=0; i<imageUrls.length; i++) {
+    url = imageUrls[i];
     tempImage = new Image();
-    tempImage.src = img.src;
+    tempImage.src = url;
     width = tempImage.width;
     height = tempImage.height;
 
-    if (img.src.length < 1700 && width >= 100 && height >= 75) {
-      populrme.images.push({ width: width, height: height, source: img.src });
+    if (url.length < 1700 && width >= 100 && height >= 75) {
+      populrme.images.push({ width: width, height: height, source: url });
     }
 
   }
