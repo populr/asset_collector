@@ -31,7 +31,7 @@ populrme.mineImages = function () {
   for (i=0; i<divs.length; i++) {
     backgroundImage = getComputedStyle(divs[i]).getPropertyValue('background-image');
     backgroundImageUrl = regexp.exec(backgroundImage);
-    if (backgroundImageUrl && backgroundImageUrl.length > 1) {
+    if (backgroundImageUrl && (backgroundImageUrl.indexOf('.jpg') > 0 || backgroundImageUrl.indexOf('.JPG') > 0 || backgroundImageUrl.indexOf('.jpeg') > 0 || backgroundImageUrl.indexOf('.JPEG') > 0)) {
       imageUrls.push(backgroundImageUrl[1]);
     }
   }
@@ -154,6 +154,7 @@ populrme.initializeCollector = function() {
   populrme.mineImages();
   if (populrme.images.length == 0) {
     alert("Couldn't find any images on this page that are large enough to capture");
+    populrme = null;
   } else {
     populrme.setupCallback();
     populrme.showIFrame();
