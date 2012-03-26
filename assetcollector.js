@@ -56,10 +56,10 @@ populrme.mineImages = function () {
 
 populrme.sendMessage = function(message) {
   if (typeof(window.postMessage) == 'function') {
-    window.frames['populrme_asset_collector'].postMessage(message, '*');
+    window.frames[populrme.frame_name].postMessage(message, '*');
   } else if (typeof(window.postMessage) == 'object') {
     window.setTimeout(function() {
-      window.frames['populrme_asset_collector'].postMessage(message, '*')
+      window.frames[populrme.frame_name].postMessage(message, '*')
     }, 0);
   }
 }
@@ -145,12 +145,13 @@ populrme.showIFrame = function() {
   iframe.frameborder = 0;
   // iframe.border = 0;
   iframe.src = populrme.protocol + '//' + populrme.appHost + '/asset_collector';
-  iframe.name = 'populrme_asset_collector'
+  iframe.name = populrme.frame_name
   populrme.iframe = iframe;
   document.body.appendChild(iframe);
 }
 
 populrme.initializeCollector = function() {
+  populrme.frame_name = 'populrme_asset_collector_' + String(new Date().getTime());
   populrme.mineImages();
   if (populrme.images.length == 0) {
     alert("Couldn't find any images on this page that are large enough to capture");
