@@ -27,14 +27,14 @@ populrme.mineImages = function () {
   var backgroundImage, backgroundImageUrl, tempImage;
   populrme.images = [];
 
-  regexp = /url\(['"]?([^'")]*)['"]?\)/
-  for (i=0; i<divs.length; i++) {
-    backgroundImage = getComputedStyle(divs[i]).getPropertyValue('background-image');
-    backgroundImageUrl = regexp.exec(backgroundImage);
-    if (backgroundImageUrl && (backgroundImageUrl.indexOf('.jpg') > 0 || backgroundImageUrl.indexOf('.JPG') > 0 || backgroundImageUrl.indexOf('.jpeg') > 0 || backgroundImageUrl.indexOf('.JPEG') > 0)) {
-      imageUrls.push(backgroundImageUrl[1]);
-    }
-  }
+  // regexp = /url\(['"]?([^'")]*)['"]?\)/
+  // for (i=0; i<divs.length; i++) {
+  //   backgroundImage = getComputedStyle(divs[i]).getPropertyValue('background-image');
+  //   backgroundImageUrl = regexp.exec(backgroundImage);
+  //   if (backgroundImageUrl && (backgroundImageUrl.indexOf('.jpg') > 0 || backgroundImageUrl.indexOf('.JPG') > 0 || backgroundImageUrl.indexOf('.jpeg') > 0 || backgroundImageUrl.indexOf('.JPEG') > 0)) {
+  //     imageUrls.push(backgroundImageUrl[1]);
+  //   }
+  // }
 
   for (i=0; i<images.length; i++) {
     imageUrls.push(images[i].src);
