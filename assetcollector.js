@@ -1,5 +1,5 @@
 populrme = window.populrme || { env: 't' };
-// populrme.appHosts = { d: '10.1.10.79:3000', p: 'populr.me', s: 'staging.populr.me', t: 'populr.me' };
+// populrme.appHosts = { d: '10.1.10.79:3000', p: 'populr.me', s: 'populrstaging.com', t: 'populr.me' };
 populrme.appHosts = { d: 'lvh.me:3000', p: 'populr.me', s: 'populrstaging.com', t: 'populr.me' };
 populrme.appHost = populrme.appHosts[populrme.env];
 populrme.protocol = populrme.env == 'd' ? 'http:' : window.location.protocol;
@@ -100,7 +100,7 @@ populrme.populateCollector = function () {
 
 populrme.receiveMessage = function(event) {
   if (event.origin == 'https://populr.me' ||
-      event.origin == 'https://staging.populr.me' ||
+      event.origin == 'https://populrstaging.com' ||
       event.origin == 'http://lvh.me:3000') {
     if (event.data == 'populr_asset_collector_ready') {
       populrme.populateCollector()
