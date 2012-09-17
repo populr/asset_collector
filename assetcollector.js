@@ -153,13 +153,16 @@ populrme.showIFrame = function() {
 populrme.initializeCollector = function() {
   populrme.frame_name = 'populrme_asset_collector_' + String(new Date().getTime());
   populrme.mineImages();
-  if (populrme.images.length == 0) {
-    alert("Couldn't find any images on this page that are large enough to capture");
-    populrme = null;
-  } else {
-    populrme.setupCallback();
-    populrme.showIFrame();
-  }
+  setTimeout(function() {
+    populrme.mineImages();
+    if (populrme.images.length == 0) {
+      alert("Couldn't find any images on this page that are large enough to capture");
+      populrme = null;
+    } else {
+      populrme.setupCallback();
+      populrme.showIFrame();
+    }
+  }, 100)
 }
 
 populrme.initializeCollector();
