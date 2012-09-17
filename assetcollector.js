@@ -162,7 +162,7 @@ populrme.initializeCollector = function() {
       populrme.setupCallback();
       populrme.showIFrame();
     }
-  }, 200)
+  }, 400)
 }
 
 populrme.initializeCollector();
